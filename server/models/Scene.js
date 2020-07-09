@@ -182,8 +182,8 @@ class Scene {
     this.runTime = 0;
     this.store = []; // past states
     
-    let poemModel = poemModels[0]
-    let poemGenerator = new PoemGenerator(poemModel.lexicon, poemModel.model, poemModel.startingCategory, 27);
+    let poemModel = poemModels[2]
+    let poemGenerator = new PoemGenerator(poemModel.lexicon, poemModel.model, poemModel.startingCategory, Math.random() * 100);
     this.poem = poemGenerator.generatePoem();
   }
 

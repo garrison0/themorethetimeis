@@ -28,6 +28,7 @@ class PoemGenerator {
       pSum += probability;
       if ( p <= pSum ) { 
         this.currentCategory = category;
+        break;
       }
     }
 

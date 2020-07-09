@@ -1,0 +1,77 @@
+i'd say most of the time five times i'm pretty good lots of days yesterday tomorrow tomorrow most days i'm good
+
+=
+
+starter = 'i'd say', 'well', 'actually', 'yeah'
+
+followed
+'category 1' = ['most of the times', '{NUMBER} times', 'lots of days', 'yesterday', 'tomorrow', 'today', 'most days']
+
+'category 2' = ['i'm pretty good', 'i'm good'] = i'm {adverbs related to 'pretty', 'fairly', 'quite', etc} good
+
+
+
+var poem = `i'd say {categoryOne} {category2}` -- actually not really, use FSM
+
+
+starter -> C1 (100%)
+
+C1 -> C1 (35%)
+
+C1 -> C2 (65%)
+
+C2 -> C1 (90%)
+
+C2 -> starter (10%)
+
+
+---
+
+2nd poem like this:
+
+
+
+
+2 years ago feels like forever but 10 years ago feels like yesterday but last week feels like it follows me and tomorrow feels like it follows me and 10 years ago feels like today
+
+
+{time} {feels like ...} {conjunction}
+1 2 3 
+
+
+start: time
+
+target max : 10
+
+time -> feels like (100%)
+
+feels like -> conjunction (100%)
+
+conjuncton -> time (100%)
+
+
+
+---
+
+
+3rd poem like this:
+
+i want to . know . how are you . how are you keeping up . how's it going . i want to . see . i want to . know . such a long time . how very . i want to . understand
+
+c1: i want to
+c2: [know, see, understand]
+c3: [how very, how are you, how are you keeping up, how's it going]
+
+
+start: c1
+target: 10
+
+c1 -> c2 (100%)
+
+c2 -> c1 (35%)
+
+c2 -> c3 (65%)
+
+c3 -> c3 (50%)
+
+c3 -> c1 (50%)

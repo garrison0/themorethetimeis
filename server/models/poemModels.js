@@ -49,27 +49,3 @@ var poemModels = {
 }
 
 module.exports = poemModels; 
-
-
-
-// 2nd poem like this:
-
-
-
-
-// 2 years ago feels like forever but 10 years ago feels like yesterday but last week feels like it follows me and tomorrow feels like it follows me and 10 years ago feels like today
-
-
-// {time} {feels like ...} {conjunction}
-// 1 2 3 
-
-
-// start: time
-
-// target max : 10
-
-// time -> feels like (100%)
-
-// feels like -> conjunction (100%)
-
-// conjuncton -> time (100%)

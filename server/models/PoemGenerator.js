@@ -14,7 +14,7 @@ class PoemGenerator {
   // add more words to the given poem given model, lexicon, etc
   update(poem) 
   {
-    // add to poem given current category
+    // add phrase to poem given current category
     let categoryPhrases = this.lexicon[this.currentCategory];
     let phrase = categoryPhrases[Math.floor(Math.random() * categoryPhrases.length)];
     let newPoem = poem + ' ' + phrase;

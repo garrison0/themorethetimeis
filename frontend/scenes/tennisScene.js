@@ -3,7 +3,7 @@ var tennisSceneSetup = (GAME) => {
     element: '.zdog-canvas',
     rotate: { z: Zdog.TAU / 14.5, x: Zdog.TAU/6.25 },
     dragRotate: true,
-    zoom: 1.75
+    zoom: 1.75 * RELATIVE_SCREEN_SIZE_CONSTANT
   });
   
   var courtGroup = new Zdog.Group({
@@ -286,7 +286,8 @@ function tennisSceneAnimate(GAME) {
     let canvas = document.querySelector('.zdog-canvas');
     let ctx = canvas.getContext('2d');
 
-    ctx.font = "24px VCR OSD";
+    let fontSize = 24 * RELATIVE_SCREEN_SIZE_CONSTANT;
+    ctx.font = fontSize + "px " + "VCR OSD";
     ctx.filter = `brightness(125%)   
         drop-shadow(1px 0px 0px  rgba(33, 33, 33, 0.8)) 
         drop-shadow(0px 1px 0px  rgba(33,33,33, 0.8)) 
@@ -301,8 +302,8 @@ function tennisSceneAnimate(GAME) {
     let date = new Date(GAME.time);
     let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
     let hours = date.toLocaleTimeString("en-US");
-    ctx.fillText(calendarDate, 600, 465);
-    ctx.fillText(hours, 600, 500);
+    ctx.fillText(calendarDate, 600 * RELATIVE_SCREEN_SIZE_CONSTANT, 465 * RELATIVE_SCREEN_SIZE_CONSTANT);
+    ctx.fillText(hours, 600 * RELATIVE_SCREEN_SIZE_CONSTANT, 500 * RELATIVE_SCREEN_SIZE_CONSTANT);
 
     // these will effect the illustration too - choose whatever you want
     ctx.filter = 'brightness(75%)';

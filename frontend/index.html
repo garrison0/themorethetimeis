@@ -35,7 +35,6 @@
     #poem { 
       font-family: VCR OSD, sans-serif;
       background: #ededed;
-      z-index: 5;
     }
 
     .qs-datepicker-container {
@@ -44,6 +43,18 @@
 
     #canvasContainer { 
       width: 100%;
+    }
+
+    .container { 
+      width: 61%;
+    }
+
+    @media(max-width: 768px) { 
+      .container { 
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+      }
     }
 
     .zdog-canvas {
@@ -61,6 +72,7 @@
       padding: 0;
       height: 100%;
       max-height: 100%;
+      overflow: hidden;
       display: inline-block;
       position: relative;
       cursor: pointer;
@@ -74,7 +86,7 @@
     .effect:before {
       content: "";
       z-index: 3;
-      /* display: block; */
+      display: block;
       top: 0;
       left: 0;
       opacity: 0.5;
@@ -121,8 +133,8 @@
 </head>
 
 <body>
-  <div class="container effect effect--vhs">
-    <div id="canvasContainer">
+  <div class="container">
+    <div id="canvasContainer" class="effect effect--vhs">
       <canvas id="canvas" class="zdog-canvas" width="1080" height="720"></canvas>
     </div>
     <div id="poem">
@@ -137,11 +149,20 @@
 
   <script>
     let context = document.getElementById("canvas").getContext('2d');
+    var RELATIVE_SCREEN_SIZE_CONSTANT = 1.05 * (window.innerWidth / 3000);
+    var RELATIVE_SCREEN_HEIGHT_CONSTANT = window.innerHeight / 800;
 
-    document.getElementById("canvas").width = 1080;
-    document.getElementById("canvas").height = 720;
-    document.getElementById("canvasContainer").width = 1080;
-    document.getElementById("canvasContainer").height = 720;
+    let canvas = document.getElementById("canvas");
+    let container = document.getElementById("canvasContainer");
+
+    canvas.width = 200 + 1080 * RELATIVE_SCREEN_SIZE_CONSTANT;
+    canvas.height = Math.max(400, 720 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
+    container.width = 200 + 1080 * RELATIVE_SCREEN_SIZE_CONSTANT;
+    container.height = Math.max(400, 720 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
+
+    let renderedDimensions = canvas.getBoundingClientRect();
+
+    console.log(renderedDimensions.width - document.querySelector('.container').getBoundingClientRect().left);
 
     const picker = datepicker('#calendar', {
       alwaysShow: true,

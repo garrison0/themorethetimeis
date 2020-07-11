@@ -2,9 +2,9 @@ var baseballSceneSetup = (GAME) => {
   GAME.illo = new Zdog.Illustration({
     element: '.zdog-canvas',
     rotate: { z: Zdog.TAU / 14.5, x: Zdog.TAU/6.25 },
-    translate: {x: -20, z: -10, y: 20},
+    translate: {x: 40 * (1 - RELATIVE_SCREEN_SIZE_CONSTANT), z: -10, y: 20},
     dragRotate: true,
-    zoom: 1.1
+    zoom: 0.1 + 1.0 * RELATIVE_SCREEN_SIZE_CONSTANT
   });
 
   var fieldGroup = new Zdog.Group({
@@ -243,7 +243,8 @@ function baseballSceneAnimate(GAME) {
   let canvas = document.querySelector('.zdog-canvas');
   let ctx = canvas.getContext('2d');
 
-  ctx.font = "36px VCR OSD";
+  let fontSize = Math.max(15, 36 * RELATIVE_SCREEN_SIZE_CONSTANT);
+  ctx.font = fontSize + "px " + "VCR OSD";
   ctx.filter = `brightness(125%)   
       drop-shadow(1px 0px 0px  rgba(33, 33, 33, 0.8)) 
       drop-shadow(0px 1px 0px  rgba(33,33,33, 0.8)) 
@@ -254,7 +255,20 @@ function baseballSceneAnimate(GAME) {
       drop-shadow(0px -1px 0px  rgba(33,33,33, 0.8)) 
       drop-shadow(-1px 0px 0px rgba(33,33,33, 0.8))`;
   ctx.fillStyle = "#F1F8F1";
-  ctx.fillText(GAME.time, 500, 500);
+
+  let date = new Date(GAME.time);
+  let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
+  let hours = date.toLocaleTimeString("en-US");
+
+  let x;
+  console.log(x);
+  if (window.innerWidth <= 768) { 
+    x = 5 * window.innerWidth / 9;
+  } else { 
+    x = 39 * document.querySelector('.container').getBoundingClientRect().width / 60;
+  }
+  ctx.fillText(calendarDate, x, 585 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
+  ctx.fillText(hours, x, 615 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
 
   // these will effect the illustration too - choose whatever you want
   ctx.filter = `brightness(100%)   

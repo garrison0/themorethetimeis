@@ -21,32 +21,39 @@
       font-family: 'Perfect DOS';
       src: url('Perfect DOS VGA 437.ttf') format('truetype');
     }
-
   </style>
+
   <style>
     body { 
-      background-color: #333;
+      background-color: #fcfcfc;
     }
 
     #timePickerContainer {
       font-family: VCR OSD, sans-serif;
+      background: #ededed;
+      margin: 0;
     }
 
-    #poem { 
+    #poemContainer { 
       font-family: VCR OSD, sans-serif;
       background: #ededed;
     }
 
-    .qs-datepicker-container {
-      font-family: VCR OSD, sans-serif;
+    #poem { 
+      max-width: 680px;
     }
 
-    #canvasContainer { 
-      width: 100%;
+    .qs-datepicker-container {
+      font-family: VCR OSD, sans-serif;
+      position: initial;
+    }
+
+    .qs-datepicker { 
+      position: relative;
     }
 
     .container { 
-      width: 61%;
+      width: 60%;
     }
 
     @media(max-width: 768px) { 
@@ -54,6 +61,31 @@
         width: 100%;
         max-width: 100%;
         padding: 0;
+        border-radius: 0px 0px 10px 10px;
+      }
+    }
+
+    @media(min-width: 768px) {
+      .container { 
+        border-radius: 0px 0px 10px 10px;
+        border-top: none;
+        border: 1px solid lightgray;
+        box-shadow: -4px 5px 12px 1px rosybrown;
+      }
+      #timePickerContainer { 
+        border-radius: 10px;
+        margin-bottom: 2em;
+        margin-top: 2em;
+      }
+
+      #poemContainer { 
+        border-radius: 10px;
+        margin-bottom: 2em;
+        margin-top: 2em;
+      }
+
+      #canvasContainer { 
+        border: 2px solid lightgray
       }
     }
 
@@ -68,12 +100,9 @@
 
     .effect {
       font-size: 0;
-      margin: 0;
-      padding: 0;
       height: 100%;
       max-height: 100%;
       overflow: hidden;
-      display: inline-block;
       position: relative;
       cursor: pointer;
       pointer-events: none;
@@ -133,16 +162,28 @@
 </head>
 
 <body>
-  <div class="container">
-    <div id="canvasContainer" class="effect effect--vhs">
+  <div class="container mb-5">
+    <div id="canvasContainer" class="effect effect--vhs row">
       <canvas id="canvas" class="zdog-canvas" width="1080" height="720"></canvas>
     </div>
-    <div id="poem">
-      blah blah blah
+    <div id="poemContainer">
+      <div id="poem" class="mx-md-auto mx-3 py-xs-2 py-sm-5">
+
+      </div> 
     </div>
-    <div id="timePickerContainer">
-      <div id="calendar"></div>
+    <div class="py-5" id="timePickerContainer">
+      <div class="row mx-md-auto mx-3" style="max-width: 680px;">
+        <div class="col-12 col-sm-6 pl-1 p-0">
+          <div id="calendar"></div>
+        </div>
+        <div class="col-12 col-sm-6 pr-1 p-0">
+          ... use vue for list of times from db
+        </div>
+      </div>
     </div>
+  </div>
+  <div class="mx-auto text-center text-muted my-5">
+    -pxfrm
   </div>
 
   <script src="https://unpkg.com/js-datepicker"></script>
@@ -150,7 +191,7 @@
   <script>
     let context = document.getElementById("canvas").getContext('2d');
     var RELATIVE_SCREEN_SIZE_CONSTANT = 1.05 * (window.innerWidth / 3000);
-    var RELATIVE_SCREEN_HEIGHT_CONSTANT = window.innerHeight / 800;
+    var RELATIVE_SCREEN_HEIGHT_CONSTANT = window.innerHeight / 740;
 
     let canvas = document.getElementById("canvas");
     let container = document.getElementById("canvasContainer");
@@ -159,10 +200,6 @@
     canvas.height = Math.max(400, 720 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
     container.width = 200 + 1080 * RELATIVE_SCREEN_SIZE_CONSTANT;
     container.height = Math.max(400, 720 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
-
-    let renderedDimensions = canvas.getBoundingClientRect();
-
-    console.log(renderedDimensions.width - document.querySelector('.container').getBoundingClientRect().left);
 
     const picker = datepicker('#calendar', {
       alwaysShow: true,

@@ -196,7 +196,6 @@ function baseballSceneAnimate(GAME) {
     let state;
     for (var i = 0; i < GAME.storeFromServer.length; i++){
       state = GAME.storeFromServer[i];
-      console.log(state);
       GAME.paths[0].path.push({x: state.balls[0].pos.x, 
           y: state.balls[0].pos.y, 
           z: state.balls[0].pos.z});
@@ -243,7 +242,7 @@ function baseballSceneAnimate(GAME) {
   let canvas = document.querySelector('.zdog-canvas');
   let ctx = canvas.getContext('2d');
 
-  let fontSize = Math.max(15, 36 * RELATIVE_SCREEN_SIZE_CONSTANT);
+  let fontSize = Math.max(16, 36 * RELATIVE_SCREEN_SIZE_CONSTANT);
   ctx.font = fontSize + "px " + "VCR OSD";
   ctx.filter = `brightness(125%)   
       drop-shadow(1px 0px 0px  rgba(33, 33, 33, 0.8)) 
@@ -260,15 +259,19 @@ function baseballSceneAnimate(GAME) {
   let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
   let hours = date.toLocaleTimeString("en-US");
 
-  let x;
-  console.log(x);
+  // todo: fix this for tennis scene
+  let x, y;
   if (window.innerWidth <= 768) { 
-    x = 5 * window.innerWidth / 9;
+    let width = window.innerWidth * window.devicePixelRatio;
+    x = .00009317 * width * width + 0.439259 * width - 40.5859;
   } else { 
-    x = 39 * document.querySelector('.container').getBoundingClientRect().width / 60;
+    let width = window.innerWidth * window.devicePixelRatio;
+    x = width * 0.595686 - 213.335 - 0.0000978525 * width * width;
   }
-  ctx.fillText(calendarDate, x, 585 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
-  ctx.fillText(hours, x, 615 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
+  y = window.devicePixelRatio * (window.innerHeight * 0.651252 - 18); 
+
+  ctx.fillText(calendarDate, x, y);
+  ctx.fillText(hours, x, y + fontSize * 1.25);
 
   // these will effect the illustration too - choose whatever you want
   ctx.filter = `brightness(100%)   

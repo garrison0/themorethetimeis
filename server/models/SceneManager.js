@@ -1,5 +1,6 @@
 const Scene = require("./Scene");
 const sceneTypeEnum = require("./sceneTypeEnum");
+var _ = require('lodash');
 const fetch = require('node-fetch');
 
 // todo: put these queries somewhere safe
@@ -33,20 +34,26 @@ function roundMinutes(date) {
 
 class SceneManager {
     constructor(sceneType) { 
-        this.scene = new Scene(sceneType);
-        this.getScene();
+        this.sceneType = sceneType;
     }
 
-    update(delta) { 
-        let readyToGenerateNewScene = this.scene.update(delta);
+    async initScene(){
+        this.scene = new Scene(this.sceneType);
+        await this.scene.initPoem();
+        // this.getScene();
+    }
+
+    async update(delta) { 
+        let readyToGenerateNewScene = await this.scene.update(delta);
         if (readyToGenerateNewScene) { 
             this.saveScene();
-            this.generateNewScene();
+            await this.generateNewScene();
         }
     }
 
-    generateNewScene() { 
+    async generateNewScene() { 
         this.scene = new Scene(sceneTypeEnum.BASEBALL);
+        await this.scene.initPoem();
     }
 
     // todo: put http logic somewhere else
@@ -77,17 +84,15 @@ class SceneManager {
         });
     }
 
-    getSceneStartTimes() { 
+    async getSceneStartTimes() { 
         let query = { query: GET_START_TIMES };
-        fetch('https://themorethetimeis.herokuapp.com/v1/graphql', {
+        let res = await fetch('https://themorethetimeis.herokuapp.com/v1/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-hasura-admin-secret': 'Gm15621530' },
             body: JSON.stringify(query)
         })
-        .then(res => res.json())
-        .then(res => {
-            console.log(res.data.scenes)
-        });
+        res = await res.json();
+        return _.map(res.data.scenes, (scene) => { return scene.startTime });
     }
 }
 

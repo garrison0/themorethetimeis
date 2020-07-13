@@ -2,7 +2,8 @@ const uniqid = require("uniqid");
 var _ = require('lodash');
 var sceneTypeEnum = require('./sceneTypeEnum.js');
 var poemModels = require('./poemModels.js');
-var PoemGenerator = require('./PoemGenerator.js');
+var FSMPoemGenerator = require('./FSMPoemGenerator.js');
+var WordSearchPoemGenerator = require('./WordSearchPoemGenerator.js');
 var Zdog = require('Zdog');
 
 // todo: move these to separate files
@@ -181,10 +182,13 @@ class Scene {
     this.timeStamp = Date.now();
     this.runTime = 0;
     this.store = []; // past states
-    
-    let poemModel = poemModels[2]
-    let poemGenerator = new PoemGenerator(poemModel.lexicon, poemModel.model, poemModel.startingCategory, Math.random() * 100);
-    this.poem = poemGenerator.generatePoem();
+  }
+
+  async initPoem() { 
+    // let poemModel = poemModels[2]
+    // let poemGenerator = new FSMPoemGenerator(poemModel.lexicon, poemModel.model, poemModel.startingCategory, Math.random() * 100);
+    let poemGenerator = new WordSearchPoemGenerator(2, ['miss', 'dislike'], 1);
+    this.poem = await poemGenerator.generatePoem();
   }
 
   // update returns whether it's time to end the scene

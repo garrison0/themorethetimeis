@@ -8,6 +8,7 @@
   <meta name="description" content="strung">
   <meta name="author" content="Garrison McMullen">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css"></script>
   <link rel="stylesheet" href="css/styles.css?v=1.0">
   <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
 
@@ -25,18 +26,25 @@
 
   <style>
     body { 
-      background-color: #fcfcfc;
+      background-color: #ededed;
     }
 
     #timePickerContainer {
       font-family: VCR OSD, sans-serif;
-      background: #ededed;
-      margin: 0;
+      margin-bottom: 1em;
+      margin-top: 2em;
+      border-radius: 10px;
+      background: rgba(80,83,88,0.5);
+      color: rgba(255,255,255,0.9);
     }
 
     #poemContainer { 
       font-family: VCR OSD, sans-serif;
-      background: #ededed;
+      border-radius: 20px;
+      margin-bottom: 2em;
+      margin-top: 2em;
+      background: rgba(80,83,88,0.5);
+      color: rgba(255,255,255,0.9);
     }
 
     #poem { 
@@ -45,6 +53,7 @@
 
     .qs-datepicker-container {
       font-family: VCR OSD, sans-serif;
+      text-transform: uppercase;
       position: initial;
     }
 
@@ -53,7 +62,57 @@
     }
 
     .container { 
-      width: 60%;
+      width: 75%;
+      max-width: 750px;
+    }
+
+    .timeOptionButton {
+      margin-bottom: 15px;
+      background: rgba(211,211,211,0.5);
+      border-radius: 5px;
+      border: 1px solid rgba(211,211,211,0.20);
+      text-align: center;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      width: 15rem;
+      box-shadow: 0px 4px 4px 0px rgba(38,38,39,0.6);
+      -webkit-tap-highlight-color: auto;
+    }
+
+    .timeOptionButton:disabled {
+      color: rgba(255,255,255,0.9);
+      opacity: 0.35;
+    }
+
+    .timeOptionButton--now {
+      background: rgba(255, 226.6, 41,0.5);
+      border-color: rgba(255, 226.6, 41,0.20);
+      width: 250px; /* to match calendar width */
+    }
+
+    .timeOptionButton--now:hover:not([disabled]) { 
+      background: rgba(255, 226.6, 41,0.35)!important;
+      border-color: rgba(255, 226.6, 41,0.05);
+    }
+
+    .timeOptionButton:hover:not([disabled]) { 
+      cursor: pointer;
+      background: rgba(211,211,211,0.35);
+      border-color: rgba(211,211,211,0.05);
+      box-shadow: 0px 2px 4px 0px rgba(38,38,39,0.6);
+      transform: translateY(2px);
+    }
+
+    .timeOptionButton:active:not([disabled]) { 
+      border-color: #a5a5a5;
+    }
+
+    .pageButton { 
+      cursor: pointer;
+    }
+
+    .pageButton:hover { 
+      opacity: 80%;
     }
 
     @media(max-width: 768px) { 
@@ -63,37 +122,62 @@
         padding: 0;
         border-radius: 0px 0px 10px 10px;
       }
+
+      .qs-datepicker-container {
+        margin: auto;
+      }
+
+      .timeOptionButton { 
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #dateList { 
+        margin: auto;
+      }
     }
 
     @media(min-width: 768px) {
-      .container { 
-        border-radius: 0px 0px 10px 10px;
-        border-top: none;
-        border: 1px solid lightgray;
-        box-shadow: -4px 5px 12px 1px rosybrown;
-      }
-      #timePickerContainer { 
-        border-radius: 10px;
-        margin-bottom: 2em;
-        margin-top: 2em;
+      .neumorph { 
+        box-shadow: 14px 14px 20px 0px rgba(15,15,15,0.7), -9px -8px 20px 2px rgba(80,80,85, 0.9);
       }
 
-      #poemContainer { 
-        border-radius: 10px;
-        margin-bottom: 2em;
-        margin-top: 2em;
+      .container { 
+        border-radius: 110px;
+        border-top: none;
+        background-color: rgb(56,56,56);
+        border: 1px solid rgb(80,80,80);
+        margin-top: 2rem;
+        box-shadow: 0.5px 17px 12.5px -8px rgba(62,62,62,0.7)
       }
 
       #canvasContainer { 
-        border: 2px solid lightgray
+        border: 2px solid #333;
+        margin: 1px;
+        margin-top: 1rem;
+        border-radius: 100px 100px 20px 20px;
       }
+
+      #timePickerContainer { 
+        border-radius: 20px 20px 100px 100px;
+        padding-bottom: 6em!important;
+        margin-right: 0px;
+      }
+
+      .card-shadow-sm { 
+        box-shadow: 0.95em 1.25em 0.85em -0.8375em rgba(15,15,15,.5);
+      }
+    }
+
+    .card-shadow { 
+      box-shadow: 0.95em 1.25em 0.85em -0.8375em rgba(15,15,15,.5);
     }
 
     .zdog-canvas {
       image-rendering: pixelated;
       background: #F1F8F1;
       transform: scale(2.25);
-      pointer-events: auto;
+      pointer-events: all;
       display: block;
       cursor: move;
     }
@@ -162,31 +246,58 @@
 </head>
 
 <body>
-  <div class="container mb-5">
-    <div id="canvasContainer" class="effect effect--vhs row">
-      <canvas id="canvas" class="zdog-canvas" width="1080" height="720"></canvas>
-    </div>
-    <div id="poemContainer">
-      <div id="poem" class="mx-md-auto mx-3 py-xs-2 py-sm-5">
-
-      </div> 
-    </div>
-    <div class="py-5" id="timePickerContainer">
-      <div class="row mx-md-auto mx-3" style="max-width: 680px;">
-        <div class="col-12 col-sm-6 pl-1 p-0">
-          <div id="calendar"></div>
-        </div>
-        <div class="col-12 col-sm-6 pr-1 p-0">
-          ... use vue for list of times from db
+  <div id="app">
+    <div class="container mb-5 neumorph">
+      <div id="canvasContainer" class="effect effect--vhs row card-shadow">
+        <canvas id="canvas" class="zdog-canvas" width="1080" height="720"></canvas>
+      </div>
+      <div id="poemContainer" class="row mx-md-0 mx-3 card-shadow-sm">
+        <div class="col-12">
+          <div id="poem" class="pt-5 pb-5 mx-1">
+          </div>
+        </div> 
+      </div>
+      <div class="py-md-5 py-4 mx-md-0 mx-3 card-shadow-sm" id="timePickerContainer">
+        <div class="row mx-lg-5 mx-md-0 mx-2" style="max-width: 680px;">
+          <div class="col-12 col-sm-6">
+            <div id="calendar"></div>
+            <button class="timeOptionButton timeOptionButton--now"
+                 v-on:click="GAME.requestScene('now')"
+                 :disabled="true">
+              NOW
+            </button>
+          </div>
+          <div class="col-12 col-sm-6 my-4 my-sm-0 mr-0 d-flex justify-content-end">
+            <div id="dateList">
+              <time-option
+                v-for="time in paginatedTimeOptions"
+                v-bind:time="time"
+                v-on:click.native="GAME.requestScene(time)"
+                class="timeOptionButton"
+              >
+              </time-option>
+              <div class="row m-0">
+                <div onclick="app.updateTimeOptionsPage(-1)" class="pageButton col-2"><span class="oi oi-chevron-left"></span></div>
+                <div class="col-8 text-center">PAGE {{app ? app.timeOptionsPage  + 1 : 1}} / {{app ? app.maxNumberOfPages() + 1 : 1}}</div>
+                <div onclick="app.updateTimeOptionsPage(1)" class="pageButton col-2"><span class="oi oi-chevron-right"></span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="mx-auto text-center text-muted my-5">
-    -pxfrm
+    <div class="mx-auto text-center text-muted my-5">
+      -pxfrm
+    </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.19/lodash.min.js"></script>
   <script src="https://unpkg.com/js-datepicker"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/zdog@1/dist/zdog.dist.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 
   <script>
     let context = document.getElementById("canvas").getContext('2d');
@@ -197,23 +308,68 @@
     let container = document.getElementById("canvasContainer");
 
     canvas.width = 200 + 1080 * RELATIVE_SCREEN_SIZE_CONSTANT;
-    canvas.height = Math.max(400, 720 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
-    container.width = 200 + 1080 * RELATIVE_SCREEN_SIZE_CONSTANT;
-    container.height = Math.max(400, 720 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
+    canvas.height = Math.max(400, 520 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
+    container.width = 200 + 520 * RELATIVE_SCREEN_SIZE_CONSTANT;
+    container.height = Math.max(400, 520 * RELATIVE_SCREEN_HEIGHT_CONSTANT);
 
-    const picker = datepicker('#calendar', {
-      alwaysShow: true,
-      onSelect: (instance, date) => {
-        // Do stuff when a date is selected (or unselected) on the calendar.
-        // You have access to the datepicker instance for convenience.
+    Vue.component('time-option', {
+      props: ['time'],
+      template: '<div>{{convertUTCTimeToDateString(time)}}</div>',
+      methods: {
+        convertUTCTimeToDateString: function(time) { 
+          let date = new Date(time);
+          return date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase() + ' ' + date.toLocaleTimeString();
+        }
       }
-    });
-  </script>
+    })
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/zdog@1/dist/zdog.dist.js"></script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        timeOptions: [],
+        selectedDate: new Date(Date.now()),
+        timeOptionsPage: 0,
+        maxElementsPerPage: 5
+      },
+      computed: {
+        paginatedTimeOptions: function() { 
+          let timeOptionsWithinSelectedDate = _.filter(this.timeOptions, (time) => this.sameDate(time, this.selectedDate));
+          let upperBound = Math.min(timeOptionsWithinSelectedDate.length, this.timeOptionsPage * this.maxElementsPerPage + this.maxElementsPerPage);
+          return timeOptionsWithinSelectedDate.slice(this.timeOptionsPage * this.maxElementsPerPage, upperBound);
+        }
+      },
+      methods: { 
+        sameDate: function (time, date) { 
+          if (!date) { 
+            date = new Date(Date.now());
+          }
+          return date.toDateString() === (new Date(time)).toDateString();
+        },
+        updateTimeOptionsPage: function (valueToAdd) { 
+          let upperBound = this.maxNumberOfPages();
+          let newPage = this.timeOptionsPage + valueToAdd;
+          this.timeOptionsPage = Math.max(0, Math.min(upperBound, newPage));
+        },
+        setNewDate: function (date) { 
+          this.selectedDate = date;
+          this.timeOptionsPage = 0;
+        },
+        maxNumberOfPages: function () { 
+          let timeOptionsWithinSelectedDate = _.filter(this.timeOptions, (time) => this.sameDate(time, this.selectedDate));
+          return Math.floor(timeOptionsWithinSelectedDate.length / (this.maxElementsPerPage + 1));
+        }
+      }
+    })
+
+    // helper function for datepicker date disabler
+    var datesAvailableFromServer = function() { 
+      let dates = _.uniq(_.map(app.timeOptions, (timeOption) => {
+        let d = new Date(timeOption);
+        return d.toDateString();
+      }));
+      return dates;
+    }
+  </script>
 
   <!-- note to self, use webpack from the start -->
   <script src="models/sceneTypeEnum.js"></script>

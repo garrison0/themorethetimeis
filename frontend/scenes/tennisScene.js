@@ -212,38 +212,42 @@ function tennisSceneAnimate(GAME) {
   requestAnimationFrame( () => tennisSceneAnimate(GAME) );
   
   // init if necessary
-  if (GAME.storeFromServer) { // have to reconstruct path so far
-    let state;
-    for (var i = 0; i < GAME.storeFromServer.length; i++){
-      state = GAME.storeFromServer[i];
-      // update paths 'so far'
-      for (var p = 0; p < GAME.paths.length; p++) {
-        GAME.paths[p].path.push({x: state.balls[p].pos.x, 
-          y: state.balls[p].pos.y, 
-          z: state.balls[p].pos.z});
-        // only re-render if latest state
-        if (i >= GAME.storeFromServer.length - 1){
-          GAME.paths[p].updatePath();
-        } 
+  if (GAME.storeFromServer && GAME.storeFromServer.length) {
+    if (GAME.playbackType === 1) { 
+      let state;
+      for (var i = 0; i < GAME.storeFromServer.length; i++){
+        state = GAME.storeFromServer[i];
+        // update paths 'so far'
+        for (var p = 0; p < GAME.paths.length; p++) {
+          GAME.paths[p].path.push({x: state.balls[p].pos.x, 
+            y: state.balls[p].pos.y, 
+            z: state.balls[p].pos.z});
+          // only re-render if latest state
+          if (i >= GAME.storeFromServer.length - 1){
+            GAME.paths[p].updatePath();
+          } 
+        }
       }
-    }
 
-    // update initial position for each tether
-    for (var t = 0; t < GAME.tethers.length; t++){
-      GAME.tethers[t].path[0].x = state.balls[t].pos.x;
-      GAME.tethers[t].path[0].y = state.balls[t].pos.y;
-      GAME.tethers[t].path[0].z = state.balls[t].pos.z;
-      GAME.tethers[t].updatePath();
+      // update initial position for each tether
+      for (var t = 0; t < GAME.tethers.length; t++){
+        GAME.tethers[t].path[0].x = state.balls[t].pos.x;
+        GAME.tethers[t].path[0].y = state.balls[t].pos.y;
+        GAME.tethers[t].path[0].z = state.balls[t].pos.z;
+        GAME.tethers[t].updatePath();
+      }
+      
+      GAME.illo.updateRenderGraph();
+      GAME.storeFromServer = null; // already updated from store, delete it
+    } else { 
+      // else if we're reconstructing a past scene, process one scene per frame
+      let nextScene = GAME.storeFromServer.shift();
+      GAME.stateBuffer.push(nextScene);
     }
-    
-    GAME.illo.updateRenderGraph();
-    GAME.storeFromServer = null; // already updated from store, delete it
   }
 
   // update state via pos
-  console.log(GAME.stateBuffer.length);
   var t = Date.now();
-  console.log(t);
   while (GAME.stateBuffer.length) {
     let state = GAME.stateBuffer.shift();
 
@@ -278,7 +282,7 @@ function tennisSceneAnimate(GAME) {
       }
     } 
   }
-  console.log('update state: ' + Date.now());
+  // console.log('update state: ' + Date.now());
   
   GAME.illo.rotate.z += 0.000325;
   if (!GAME.stateBuffer.length) { 

@@ -191,23 +191,47 @@ var baseballSceneSetup = (GAME) => {
 };
 
 function baseballSceneAnimate(GAME) {
-  // init if necessary
-  if (GAME.storeFromServer) { // have to reconstruct path so far
-    let state;
-    for (var i = 0; i < GAME.storeFromServer.length; i++){
-      state = GAME.storeFromServer[i];
-      GAME.paths[0].path.push({x: state.balls[0].pos.x, 
-          y: state.balls[0].pos.y, 
-          z: state.balls[0].pos.z});
-    }
-    GAME.tethers[0].path[0].x = state.balls[0].pos.x;
-    GAME.tethers[0].path[0].y = state.balls[0].pos.y;
-    GAME.tethers[0].path[0].z = state.balls[0].pos.z;
+  let timestamp = Date.now();
+  let isInitialFrame;
+  if (GAME.internalTimestamp === undefined) { 
+    GAME.internalTimestamp = timestamp;
+    isInitialFrame = true;
+  } else { 
+    const delta = (timestamp - GAME.internalTimestamp) / 1000; //convert ms to s
+    GAME.internalRuntime += delta;
+  }
 
-    GAME.paths[0].updatePath();
-    GAME.tethers[0].updatePath();
-    GAME.illo.updateRenderGraph();
-    GAME.storeFromServer = null;
+  // init if necessary
+  if (GAME.storeFromServer && GAME.storeFromServer.length) { // have to reconstruct path so far
+    
+    // if we're watching the live scene, catch up to the present ASAP 
+    if (GAME.playbackType === 1) { 
+      let state;
+      for (var i = 0; i < GAME.storeFromServer.length; i++){
+        state = GAME.storeFromServer[i];
+        GAME.paths[0].path.push({x: state.balls[0].pos.x, 
+            y: state.balls[0].pos.y, 
+            z: state.balls[0].pos.z});
+      }
+      GAME.tethers[0].path[0].x = state.balls[0].pos.x;
+      GAME.tethers[0].path[0].y = state.balls[0].pos.y;
+      GAME.tethers[0].path[0].z = state.balls[0].pos.z;
+
+      GAME.paths[0].updatePath();
+      GAME.tethers[0].updatePath();
+      GAME.illo.updateRenderGraph();
+      GAME.storeFromServer = null;
+    } else { 
+      // else if we're reconstructing a past scene, process scene frames according to their original timing
+      var processScene = true;
+      while (processScene) { 
+        let nextScene = GAME.storeFromServer[0];
+        processScene = nextScene ? nextScene.runTime <= GAME.internalRuntime : false;
+        if (processScene || isInitialFrame) 
+          GAME.stateBuffer.push(GAME.storeFromServer.shift());
+      }
+    }
+
   }
 
   // update state via pos
@@ -259,16 +283,18 @@ function baseballSceneAnimate(GAME) {
   let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
   let hours = date.toLocaleTimeString("en-US");
 
-  // todo: fix this for tennis scene
+  // todo: fix this for tennis scene, redo since redesigned layout
   let x, y;
   if (window.innerWidth <= 768) { 
     let width = window.innerWidth * window.devicePixelRatio;
     x = .00009317 * width * width + 0.439259 * width - 40.5859;
   } else { 
-    let width = window.innerWidth * window.devicePixelRatio;
-    x = width * 0.595686 - 213.335 - 0.0000978525 * width * width;
+    let width = document.querySelector('#canvasContainer').width * window.devicePixelRatio;
+    // console.log(width);
+    x = width * 0.595686 - 213.335 - 0.0000978525 * width * width / 2;
   }
-  y = window.devicePixelRatio * (window.innerHeight * 0.651252 - 18); 
+  y = window.devicePixelRatio * (document.querySelector('#canvasContainer').height * 0.651252 - 18) / 2; 
+  // console.log(y);
 
   ctx.fillText(calendarDate, x, y);
   ctx.fillText(hours, x, y + fontSize * 1.25);

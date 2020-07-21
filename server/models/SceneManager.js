@@ -4,8 +4,8 @@ var _ = require('lodash');
 const fetch = require('node-fetch');
 
 // todo: put these queries somewhere safe
-var GET_SCENE = `query GetScene {
-    scenes(where: {startTime: {_gte: "2020-06-27T19:55:00+00:00", _lte: "2020-06-27T20:05:00+00:00"}}) {
+var GET_SCENE = (time) => `query GetScene {
+    scenes(where: {startTime: {_eq: "${time}"}}) {
       id
       store
       startTime
@@ -40,7 +40,6 @@ class SceneManager {
     async initScene(){
         this.scene = new Scene(this.sceneType);
         await this.scene.initPoem();
-        // this.getScene();
     }
 
     async update(delta) { 
@@ -71,17 +70,15 @@ class SceneManager {
         });
     }
 
-    getScene() {
-        let query = { query: GET_SCENE };
-        fetch('https://themorethetimeis.herokuapp.com/v1/graphql', {
+    async getScene(time) {
+        let query = { query: GET_SCENE(time) };
+        let res = await fetch('https://themorethetimeis.herokuapp.com/v1/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-hasura-admin-secret': 'Gm15621530' },
             body: JSON.stringify(query)
-        })
-        .then(res => res.json())
-        .then(res => {
-            console.log(res.data);
         });
+        res = await res.json();
+        return res.data.scenes[0].store;
     }
 
     async getSceneStartTimes() { 

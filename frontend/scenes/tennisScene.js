@@ -2,8 +2,9 @@ var tennisSceneSetup = (GAME) => {
   GAME.illo = new Zdog.Illustration({
     element: '.zdog-canvas',
     rotate: { z: Zdog.TAU / 14.5, x: Zdog.TAU/6.25 },
+    translate: {x: -80 * RELATIVE_SCREEN_SIZE_CONSTANT },
     dragRotate: true,
-    zoom: 1.75 * RELATIVE_SCREEN_SIZE_CONSTANT
+    zoom: 1
   });
   
   var courtGroup = new Zdog.Group({
@@ -209,7 +210,8 @@ var tennisSceneSetup = (GAME) => {
 }
 
 function tennisSceneAnimate(GAME) {
-  requestAnimationFrame( () => tennisSceneAnimate(GAME) );
+  if (GAME.scene === 1)
+    requestAnimationFrame( () => tennisSceneAnimate(GAME) );
   
   // init if necessary
   if (GAME.storeFromServer && GAME.storeFromServer.length) {
@@ -290,7 +292,8 @@ function tennisSceneAnimate(GAME) {
     let canvas = document.querySelector('.zdog-canvas');
     let ctx = canvas.getContext('2d');
 
-    let fontSize = 24 * RELATIVE_SCREEN_SIZE_CONSTANT;
+    let canvasWidth = document.querySelector('#canvasContainer').clientWidth;
+    let fontSize = canvasWidth < 600 ? (canvasWidth < 400 ? 12 : 14) : 18;
     ctx.font = fontSize + "px " + "VCR OSD";
     ctx.filter = `brightness(125%)   
         drop-shadow(1px 0px 0px  rgba(33, 33, 33, 0.8)) 
@@ -306,8 +309,26 @@ function tennisSceneAnimate(GAME) {
     let date = new Date(GAME.time);
     let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
     let hours = date.toLocaleTimeString("en-US");
-    ctx.fillText(calendarDate, 600 * RELATIVE_SCREEN_SIZE_CONSTANT, 465 * RELATIVE_SCREEN_SIZE_CONSTANT);
-    ctx.fillText(hours, 600 * RELATIVE_SCREEN_SIZE_CONSTANT, 500 * RELATIVE_SCREEN_SIZE_CONSTANT);
+
+    // todo: fix this for tennis scene, redo since redesigned layout
+    // let x = document.getElementById("myRange").value;
+    // let y = document.getElementById("myRange2").value;
+
+    let x;
+    if (window.innerWidth >= 1450) { 
+      x = .0000249636 * canvasWidth * canvasWidth * canvasWidth - 0.043458 * canvasWidth * canvasWidth + 25.466 * canvasWidth - 4697.21;
+    } else if (window.innerWidth >= 768) { 
+      x = .0019957 * canvasWidth * canvasWidth - 1.86342 * canvasWidth + 670.056;
+    } else if (window.innerWidth <= 350) { 
+      x = .0019957 * canvasWidth * canvasWidth - 1.86342 * canvasWidth + 550.056;
+    } else { 
+      x = .0000249636 * canvasWidth * canvasWidth * canvasWidth - 0.043458 * canvasWidth * canvasWidth + 25.466 * canvasWidth - 4780.21;
+    }
+    
+    let y = window.devicePixelRatio * (document.querySelector('#canvasContainer').clientHeight * 0.651252 - 18); 
+
+    ctx.fillText(calendarDate, x, y);
+    ctx.fillText(hours, x, y + fontSize * 1.25);
 
     // these will effect the illustration too - choose whatever you want
     ctx.filter = 'brightness(75%)';

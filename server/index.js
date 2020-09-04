@@ -2,7 +2,6 @@ const WebSocket = require('ws');
 const gameloop = require('node-gameloop');
 const sceneTypeEnum = require('./models/sceneTypeEnum');
 const wss = new WebSocket.Server({ port: 8080 });
-var webSockets = {} // userID: webSocket
 
 const SceneManager = require('./models/SceneManager.js');
 
@@ -51,12 +50,20 @@ wss.on('connection', function connection(ws) {
 
 const id = gameloop.setGameLoop(async function(delta) {
   // update scenes
-  await sceneManager.update(delta);
-  let message = 
-    {
+  let transitionedToNewScene = await sceneManager.update(delta);
+  let message = {};
+  if (transitionedToNewScene) { 
+    message = {
+      type: 'init',
+      sceneType: sceneManager.scene.sceneType,
+      data: sceneManager.scene.store
+    }
+  } else { 
+    message = {
       type: 'update',
       data: sceneManager.scene.store[sceneManager.scene.store.length - 1]
     }
+  }
   wss.clients.forEach(function each(client) {
     client.send(JSON.stringify(message));
   });

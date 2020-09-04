@@ -32,7 +32,6 @@
     #timePickerContainer {
       font-family: VCR OSD, sans-serif;
       margin-bottom: 1em;
-      margin-top: 2em;
       border-radius: 10px;
       background: rgba(80,83,88,0.5);
       color: rgba(255,255,255,0.9);
@@ -183,12 +182,8 @@
     }
 
     .effect {
-      font-size: 0;
-      height: 100%;
-      max-height: 100%;
       overflow: hidden;
       position: relative;
-      cursor: pointer;
       pointer-events: none;
       background-position: center;
       background-color: transparent;
@@ -200,14 +195,29 @@
       content: "";
       z-index: 3;
       display: block;
-      top: 0;
-      left: 0;
       opacity: 0.5;
       position: absolute;
       width: 100%;
       height: 100%;
       background: inherit;
       transition: all 0.2s ease-out;
+    }
+
+    .effect--loading-circle { 
+      background: none;
+    }
+
+    .effect--loading-circle:after { 
+      background: url(./assets/loadingCircle.svg) 0 0;
+      top: 42%;
+      left: 50%;
+      opacity: 1;
+      background-repeat: no-repeat;
+    }
+
+    .behind-loading-circle { 
+      filter: blur(0.65px) grayscale(1);
+      opacity: 0.6;
     }
 
     .effect--vhs:before {
@@ -241,6 +251,18 @@
         background-position: top;
       }
     }
+    /* The slider itself */
+    .slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 25px; /* Specified height */
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    }
   </style>
 
 </head>
@@ -248,38 +270,46 @@
 <body>
   <div id="app">
     <div class="container mb-5 neumorph">
-      <div id="canvasContainer" class="effect effect--vhs row card-shadow">
+      <div id="canvasContainer" class="effect effect--vhs row card-shadow-sm">
         <canvas id="canvas" class="zdog-canvas" width="1080" height="720"></canvas>
       </div>
+      <!-- <div style="width: 100%">
+        <input type="range" min="1" max="1000" value="50" class="slider" id="myRange">
+      </div>
+      <div style="width: 100%">
+        <input type="range" min="1" max="1000" value="50" class="slider" id="myRange2">
+      </div> -->
       <div id="poemContainer" class="row mx-md-0 mx-3 card-shadow-sm">
         <div class="col-12">
           <div id="poem" class="pt-5 pb-5 mx-1">
           </div>
         </div> 
       </div>
-      <div class="py-md-5 py-4 mx-md-0 mx-3 card-shadow-sm" id="timePickerContainer">
-        <div class="row mx-lg-5 mx-md-0 mx-2" style="max-width: 680px;">
-          <div class="col-12 col-sm-6">
-            <div id="calendar"></div>
-            <button class="timeOptionButton timeOptionButton--now"
-                 v-on:click="GAME.requestScene('now')"
-                 :disabled="true">
-              NOW
-            </button>
-          </div>
-          <div class="col-12 col-sm-6 my-4 my-sm-0 mr-0 d-flex justify-content-end">
-            <div id="dateList">
-              <time-option
-                v-for="time in paginatedTimeOptions"
-                v-bind:time="time"
-                v-on:click.native="GAME.requestScene(time)"
-                class="timeOptionButton"
-              >
-              </time-option>
-              <div class="row m-0">
-                <div onclick="app.updateTimeOptionsPage(-1)" class="pageButton col-2"><span class="oi oi-chevron-left"></span></div>
-                <div class="col-8 text-center">PAGE {{app ? app.timeOptionsPage  + 1 : 1}} / {{app ? app.maxNumberOfPages() + 1 : 1}}</div>
-                <div onclick="app.updateTimeOptionsPage(1)" class="pageButton col-2"><span class="oi oi-chevron-right"></span></div>
+      <div v-bind:class="{ 'effect--loading-circle': isRetrievingScene, 'effect': isRetrievingScene }"> 
+        <div class="py-md-5 py-4 mx-md-0 mx-3 card-shadow-sm" v-bind:class="{ 'behind-loading-circle': isRetrievingScene }" id="timePickerContainer">
+          <div class="row mx-lg-5 mx-md-0 mx-2" style="max-width: 680px;">
+            <div class="col-12 col-sm-6">
+              <div id="calendar"></div>
+              <button class="timeOptionButton timeOptionButton--now"
+                  v-on:click="requestSceneFromServer('now')"
+                  :disabled="isGamePlaybackLive()">
+                NOW
+              </button>
+            </div>
+            <div class="col-12 col-sm-6 my-4 my-sm-0 mr-0 d-flex justify-content-end">
+              <div id="dateList">
+                <time-option
+                  v-for="time in paginatedTimeOptions"
+                  v-bind:time="time"
+                  v-on:click.native="requestSceneFromServer(time)"
+                  class="timeOptionButton"
+                >
+                </time-option>
+                <div class="row m-0">
+                  <div onclick="app.updateTimeOptionsPage(-1)" class="pageButton col-2"><span class="oi oi-chevron-left"></span></div>
+                  <div class="col-8 text-center">PAGE {{app ? app.timeOptionsPage  + 1 : 1}} / {{app ? app.maxNumberOfPages() + 1 : 1}}</div>
+                  <div onclick="app.updateTimeOptionsPage(1)" class="pageButton col-2"><span class="oi oi-chevron-right"></span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -329,7 +359,8 @@
         timeOptions: [],
         selectedDate: new Date(Date.now()),
         timeOptionsPage: 0,
-        maxElementsPerPage: 5
+        maxElementsPerPage: 5,
+        isRetrievingScene: false
       },
       computed: {
         paginatedTimeOptions: function() { 
@@ -357,6 +388,14 @@
         maxNumberOfPages: function () { 
           let timeOptionsWithinSelectedDate = _.filter(this.timeOptions, (time) => this.sameDate(time, this.selectedDate));
           return Math.floor(timeOptionsWithinSelectedDate.length / (this.maxElementsPerPage + 1));
+        },
+        isGamePlaybackLive: function () { 
+          return (typeof GAME === 'undefined' ? false : GAME.playbackType === 1);
+        },
+        requestSceneFromServer: function(time) { 
+          this.isRetrievingScene = true;
+          
+          GAME.requestScene(time);
         }
       }
     })

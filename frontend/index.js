@@ -3,7 +3,7 @@ const playbackTypeEnum = {
   LIVE: 1
 }
 
-// lovely singleton
+// lovely singleton that should've been part of Vue
 class Game { 
   constructor(sceneType, storeFromServer, isPastScene) { 
     this.paths = [];
@@ -17,6 +17,7 @@ class Game {
     this.internalRuntime = 0; // used to process old scenes
     this.scene = sceneType;
     this.playbackType = isPastScene ? playbackTypeEnum.FROM_DATABASE : playbackTypeEnum.LIVE; // live scene on the server or from database
+    app.$forceUpdate(); // re-render 'now' button
   }
 
   requestScene(time) { 
@@ -31,9 +32,17 @@ class Game {
 }
 var GAME = new Game();
 
+function changePoem(storeFromServer) { 
+  if (storeFromServer.length)
+    document.querySelector('#poem').innerHTML = "<div class='mx-md-5 mx-3'>" + storeFromServer[storeFromServer.length - 1].poem + "</div>";
+}
+
 var init = (sceneType, storeFromServer, isPastScene) => { 
   let doInitializeDatePicker = !(GAME && GAME.picker); 
+  let picker = GAME.picker;
   GAME = new Game(sceneType, storeFromServer, isPastScene);
+
+  app.isRetrievingScene = false;
 
   switch (sceneType) {
     case sceneTypeEnum.BASEBALL:
@@ -46,7 +55,7 @@ var init = (sceneType, storeFromServer, isPastScene) => {
       break;
   }    
 
-  document.querySelector('#poem').innerHTML = "<div class='mx-md-5 mx-3'>" + storeFromServer[storeFromServer.length - 1].poem + "</div>";
+  changePoem(storeFromServer);
 
   // init calendar now that we have all the available times
   if (doInitializeDatePicker)  {
@@ -59,6 +68,8 @@ var init = (sceneType, storeFromServer, isPastScene) => {
         return !datesAvailableFromServer().includes(date.toDateString());
       }
     });
+  } else { 
+    GAME.picker = picker
   }
 }
 
@@ -75,7 +86,8 @@ connection.onmessage = function (event) {
   let message = JSON.parse(event.data);
   if (message.type === 'init') { 
     let storeFromServer = message.data;
-    app.timeOptions = message.startTimes;
+    if (message.startTimes)
+      app.timeOptions = message.startTimes;
     init(message.sceneType, storeFromServer);
   } else if(message.type === 'scene') {
     let storeFromServer = message.data;
@@ -83,6 +95,7 @@ connection.onmessage = function (event) {
   } else { 
     if (GAME.playbackType === playbackTypeEnum.LIVE) { 
       let currentState = message.data;
+      changePoem([currentState]);
       // console.log(currentState);
       GAME.stateBuffer.push(currentState);
     } 

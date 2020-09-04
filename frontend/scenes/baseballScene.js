@@ -2,9 +2,9 @@ var baseballSceneSetup = (GAME) => {
   GAME.illo = new Zdog.Illustration({
     element: '.zdog-canvas',
     rotate: { z: Zdog.TAU / 14.5, x: Zdog.TAU/6.25 },
-    translate: {x: 40 * (1 - RELATIVE_SCREEN_SIZE_CONSTANT), z: -10, y: 20},
+    translate: {x: -120 * RELATIVE_SCREEN_SIZE_CONSTANT, z: -10, y: 20},
     dragRotate: true,
-    zoom: 0.1 + 1.0 * RELATIVE_SCREEN_SIZE_CONSTANT
+    zoom: 0.68
   });
 
   var fieldGroup = new Zdog.Group({
@@ -231,13 +231,13 @@ function baseballSceneAnimate(GAME) {
           GAME.stateBuffer.push(GAME.storeFromServer.shift());
       }
     }
-
   }
 
   // update state via pos
-  if (GAME.stateBuffer.length) {
+  let stateUpdated = false;
+  while (GAME.stateBuffer.length) {
     let state = GAME.stateBuffer.shift();
-
+    stateUpdated = true;
     GAME.time = state.timeStamp;
 
     GAME.balls[0].translate.x = state.balls[0].pos.x;
@@ -260,44 +260,48 @@ function baseballSceneAnimate(GAME) {
     GAME.tethers[0].updatePath();
   }
 
-  GAME.illo.rotate.z += 0.000325;
-  GAME.illo.updateRenderGraph();
-
   let canvas = document.querySelector('.zdog-canvas');
   let ctx = canvas.getContext('2d');
+  
+  GAME.illo.rotate.z += 0.000325;
+  if (!GAME.stateBuffer.length && stateUpdated) { 
+    GAME.illo.updateRenderGraph();
 
-  let fontSize = Math.max(16, 36 * RELATIVE_SCREEN_SIZE_CONSTANT);
-  ctx.font = fontSize + "px " + "VCR OSD";
-  ctx.filter = `brightness(125%)   
-      drop-shadow(1px 0px 0px  rgba(33, 33, 33, 0.8)) 
-      drop-shadow(0px 1px 0px  rgba(33,33,33, 0.8)) 
-      drop-shadow(0px -1px 0px  rgba(33,33,33, 0.8)) 
-      drop-shadow(-1px 0px 0px rgba(33,33,33, 0.8)) 
-      drop-shadow(1px 0px 0px  rgba(33,33,33, 0.8)) 
-      drop-shadow(0px 1px 0px  rgba(33,33,33, 0.8)) 
-      drop-shadow(0px -1px 0px  rgba(33,33,33, 0.8)) 
-      drop-shadow(-1px 0px 0px rgba(33,33,33, 0.8))`;
-  ctx.fillStyle = "#F1F8F1";
+    let canvasWidth = document.querySelector('#canvasContainer').clientWidth;
+    let fontSize = canvasWidth < 600 ? (canvasWidth < 400 ? 12 : 14) : 18;
+    ctx.font = fontSize + "px " + "VCR OSD";
+    ctx.filter = `brightness(125%)   
+        drop-shadow(1px 0px 0px  rgba(33, 33, 33, 0.8)) 
+        drop-shadow(0px 1px 0px  rgba(33,33,33, 0.8)) 
+        drop-shadow(0px -1px 0px  rgba(33,33,33, 0.8)) 
+        drop-shadow(-1px 0px 0px rgba(33,33,33, 0.8)) 
+        drop-shadow(1px 0px 0px  rgba(33,33,33, 0.8)) 
+        drop-shadow(0px 1px 0px  rgba(33,33,33, 0.8)) 
+        drop-shadow(0px -1px 0px  rgba(33,33,33, 0.8)) 
+        drop-shadow(-1px 0px 0px rgba(33,33,33, 0.8))`;
+    ctx.fillStyle = "#F1F8F1";
 
-  let date = new Date(GAME.time);
-  let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
-  let hours = date.toLocaleTimeString("en-US");
+    let date = new Date(GAME.time);
+    let calendarDate = date.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric'}).toUpperCase().replace(' ', '.').replace(',', '');
+    let hours = date.toLocaleTimeString("en-US");
 
-  // todo: fix this for tennis scene, redo since redesigned layout
-  let x, y;
-  if (window.innerWidth <= 768) { 
-    let width = window.innerWidth * window.devicePixelRatio;
-    x = .00009317 * width * width + 0.439259 * width - 40.5859;
-  } else { 
-    let width = document.querySelector('#canvasContainer').width * window.devicePixelRatio;
-    // console.log(width);
-    x = width * 0.595686 - 213.335 - 0.0000978525 * width * width / 2;
+    // todo: fix this for tennis scene, redo since redesigned layout
+    let x;
+    if (window.innerWidth >= 1450) { 
+      x = .0000249636 * canvasWidth * canvasWidth * canvasWidth - 0.043458 * canvasWidth * canvasWidth + 25.466 * canvasWidth - 4697.21;
+    } else if (window.innerWidth >= 768) { 
+      x = .0019957 * canvasWidth * canvasWidth - 1.86342 * canvasWidth + 670.056;
+    } else if (window.innerWidth <= 350) { 
+      x = .0019957 * canvasWidth * canvasWidth - 1.86342 * canvasWidth + 550.056;
+    } else { 
+      x = .0000249636 * canvasWidth * canvasWidth * canvasWidth - 0.043458 * canvasWidth * canvasWidth + 25.466 * canvasWidth - 4780.21;
+    }
+    
+    let y = window.devicePixelRatio * (document.querySelector('#canvasContainer').clientHeight * 0.651252 - 18); 
+
+    ctx.fillText(calendarDate, x, y);
+    ctx.fillText(hours, x, y + fontSize * 1.25);
   }
-  y = window.devicePixelRatio * (document.querySelector('#canvasContainer').height * 0.651252 - 18) / 2; 
-  // console.log(y);
-
-  ctx.fillText(calendarDate, x, y);
-  ctx.fillText(hours, x, y + fontSize * 1.25);
 
   // these will effect the illustration too - choose whatever you want
   ctx.filter = `brightness(100%)   
@@ -310,5 +314,6 @@ function baseballSceneAnimate(GAME) {
   ctx.shadowOffsetY = 0;
   ctx.shadowBlur = 0;
 
-  requestAnimationFrame( () => baseballSceneAnimate(GAME) );
+  if (GAME.scene === 0)
+    requestAnimationFrame( () => baseballSceneAnimate(GAME) );
 }

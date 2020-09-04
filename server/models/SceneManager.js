@@ -45,13 +45,15 @@ class SceneManager {
     async update(delta) { 
         let readyToGenerateNewScene = await this.scene.update(delta);
         if (readyToGenerateNewScene) { 
-            this.saveScene();
+            // this.saveScene();
             await this.generateNewScene();
+            return true;
         }
+        return false;
     }
 
     async generateNewScene() { 
-        this.scene = new Scene(sceneTypeEnum.BASEBALL);
+        this.scene = new Scene(sceneTypeEnum.BASEBALL); // todo: pick random scene
         await this.scene.initPoem();
     }
 

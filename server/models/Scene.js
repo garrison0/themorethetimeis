@@ -185,9 +185,9 @@ class Scene {
   }
 
   async initPoem() { 
-    // let poemModel = poemModels[2]
-    // let poemGenerator = new FSMPoemGenerator(poemModel.lexicon, poemModel.model, poemModel.startingCategory, Math.random() * 100);
-    let poemGenerator = new WordSearchPoemGenerator(2, ['miss', 'dislike'], 1);
+    let poemModel = poemModels[Math.floor(Math.random() * Object.keys(poemModels).length)];
+    let poemGenerator = new FSMPoemGenerator(poemModel.lexicon, poemModel.model, poemModel.startingCategory, Math.random() * 100);
+    // let poemGenerator = new WordSearchPoemGenerator(2, ['miss', 'dislike'], 1);
     this.poem = await poemGenerator.generatePoem();
   }
 
@@ -202,7 +202,7 @@ class Scene {
     this.storeState();
 
     // if the scene has been running for n hours, where n > (HOURS / SCENE), or if we're within a minute of an exact hour...
-    return this.runTime >= (HRS_PER_SCENE * SEC_IN_HR) || this.timestamp % MS_IN_HOUR < MS_IN_MINUTE;
+    return this.runTime >= 0.05 || this.timestamp % MS_IN_HOUR < MS_IN_MINUTE;
   }
 
   storeState() { 
